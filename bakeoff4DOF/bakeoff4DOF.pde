@@ -21,6 +21,14 @@ int startTime = 0; // time starts when the first click is captured
 int finishTime = 0; //records the time of the final click
 boolean userDone = false;
 
+// Slider properties
+float sliderSize = 40;
+float sliderX;
+float sliderY;
+boolean sliderSelected = false;
+float sliderInitialX = sliderX;
+float sliderInitialY = sliderY;
+
 final int screenPPI = 120; //what is the DPI of the screen you are using
 //Many phones listed here: https://en.wikipedia.org/wiki/Comparison_of_high-definition_smartphone_displays 
 
@@ -42,7 +50,8 @@ float inchesToPixels(float inch)
 void setup() {
   //size does not let you use variables, so you have to manually compute this
   size(400, 700); //set this, based on your sceen's PPI to be a 2x3.5" area.
-
+  sliderX = width / 2;
+  sliderY = height - sliderSize / 2;
   rectMode(CENTER);
   textFont(createFont("Arial", inchesToPixels(.15f))); //sets the font to Arial that is .3" tall
   textAlign(CENTER);
@@ -124,50 +133,63 @@ void draw() {
 
 void scaffoldControlLogic()
 {
-  //upper left corner, rotate counterclockwise
-  text("CCW", inchesToPixels(.2f), inchesToPixels(.2f));
-  if (mousePressed && dist(0, 0, mouseX, mouseY)<inchesToPixels(.5f))
-    screenRotation--;
+  
+  // Draw slider
+  fill(75, 75, 75, 240);
+  rect(0, sliderY, 2 * width, sliderSize);
+  fill(150, 150, 150, 255);
+  textSize(30);
+  text("SIZE", inchesToPixels(0.5f), sliderY + inchesToPixels(0.1f));
+  fill(193, 255, 55, 180);
+  rect(sliderX, sliderY, sliderSize, sliderSize);
+  
+  ////upper left corner, rotate counterclockwise
+  //text("CCW", inchesToPixels(.2f), inchesToPixels(.2f));
+  //if (mousePressed && dist(0, 0, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenRotation--;
 
-  //upper right corner, rotate clockwise
-  text("CW", width-inchesToPixels(.2f), inchesToPixels(.2f));
-  if (mousePressed && dist(width, 0, mouseX, mouseY)<inchesToPixels(.5f))
-    screenRotation++;
+  ////upper right corner, rotate clockwise
+  //text("CW", width-inchesToPixels(.2f), inchesToPixels(.2f));
+  //if (mousePressed && dist(width, 0, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenRotation++;
 
-  //lower left corner, decrease Z
-  text("-", inchesToPixels(.2f), height-inchesToPixels(.2f));
-  if (mousePressed && dist(0, height, mouseX, mouseY)<inchesToPixels(.5f))
-    screenZ-=inchesToPixels(.02f);
+  ////lower left corner, decrease Z
+  //text("-", inchesToPixels(.2f), height-inchesToPixels(.2f));
+  //if (mousePressed && dist(0, height, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenZ-=inchesToPixels(.02f);
 
-  //lower right corner, increase Z
-  text("+", width-inchesToPixels(.2f), height-inchesToPixels(.2f));
-  if (mousePressed && dist(width, height, mouseX, mouseY)<inchesToPixels(.5f))
-    screenZ+=inchesToPixels(.02f);
+  ////lower right corner, increase Z
+  //text("+", width-inchesToPixels(.2f), height-inchesToPixels(.2f));
+  //if (mousePressed && dist(width, height, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenZ+=inchesToPixels(.02f);
 
-  //left middle, move left
-  text("left", inchesToPixels(.2f), height/2);
-  if (mousePressed && dist(0, height/2, mouseX, mouseY)<inchesToPixels(.5f))
-    screenTransX-=inchesToPixels(.02f);
-  ;
+  ////left middle, move left
+  //text("left", inchesToPixels(.2f), height/2);
+  //if (mousePressed && dist(0, height/2, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenTransX-=inchesToPixels(.02f);
+  //;
 
-  text("right", width-inchesToPixels(.2f), height/2);
-  if (mousePressed && dist(width, height/2, mouseX, mouseY)<inchesToPixels(.5f))
-    screenTransX+=inchesToPixels(.02f);
-  ;
+  //text("right", width-inchesToPixels(.2f), height/2);
+  //if (mousePressed && dist(width, height/2, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenTransX+=inchesToPixels(.02f);
+  //;
 
-  text("up", width/2, inchesToPixels(.2f));
-  if (mousePressed && dist(width/2, 0, mouseX, mouseY)<inchesToPixels(.5f))
-    screenTransY-=inchesToPixels(.02f);
-  ;
+  //text("up", width/2, inchesToPixels(.2f));
+  //if (mousePressed && dist(width/2, 0, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenTransY-=inchesToPixels(.02f);
+  //;
 
-  text("down", width/2, height-inchesToPixels(.2f));
-  if (mousePressed && dist(width/2, height, mouseX, mouseY)<inchesToPixels(.5f))
-    screenTransY+=inchesToPixels(.02f);
-  ;
+  //text("down", width/2, height-inchesToPixels(.2f));
+  //if (mousePressed && dist(width/2, height, mouseX, mouseY)<inchesToPixels(.5f))
+  //  screenTransY+=inchesToPixels(.02f);
+  //;
 }
 
 void mouseReleased()
 {
+  if (sliderSelected) {
+    sliderSelected = false;
+  }
   //check to see if user clicked middle of screen
   if (dist(width/2, height/2, mouseX, mouseY)<inchesToPixels(.5f))
   {
@@ -213,17 +235,31 @@ double calculateDifferenceBetweenAngles(float a1, float a2)
  }
  
 void mouseDragged() {
-  screenTransX=mouseX - mouseOffsetX;
-  screenTransY=mouseY - mouseOffsetY;
-  
-  // Check if close enough
-  Target t = targets.get(trialIndex);
-  boolean checkCloseDist = dist(t.x,t.y,-screenTransX,-screenTransY)<inchesToPixels(.05f);
-  if (checkCloseDist) println("You are there");
+  if (sliderSelected) {
+      float diffX = mouseX - sliderInitialX;
+      screenZ = max(0, screenZ + inchesToPixels(.01f) * diffX);
+      sliderInitialX = mouseX;
+      sliderX = mouseX;
+  } else {
+    screenTransX=mouseX - mouseOffsetX;
+    screenTransY=mouseY - mouseOffsetY;
+    
+    // Check if close enough
+    Target t = targets.get(trialIndex);
+    boolean checkCloseDist = dist(t.x,t.y,-screenTransX,-screenTransY)<inchesToPixels(.05f);
+    if (checkCloseDist) println("You are there");
+  }
 }
 
 void mousePressed()
 {
-  mouseOffsetX = mouseX - screenTransX;
-  mouseOffsetY = mouseY - screenTransY;  
+  if(mouseX >= sliderX - sliderSize && mouseX < sliderX + sliderSize) { 
+    if (mouseY >= sliderY - sliderSize) {
+      sliderInitialX = mouseX;
+      sliderSelected = true; 
+    }
+  } else {
+     mouseOffsetX = mouseX - screenTransX;
+     mouseOffsetY = mouseY - screenTransY;   
+  }
 }
