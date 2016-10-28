@@ -127,13 +127,20 @@ void draw() {
   translate(width/2, height/2); //center the drawing coordinates to the center of the screen
   rotate(radians(screenRotation));
 
-  //custom shifts:
-  //translate(screenTransX,screenTransY); //center the drawing coordinates to the center of the screen
-
   boolean checkCloseDist = dist(t.x,t.y,-screenTransX,-screenTransY)<inchesToPixels(.05f);
-  if (checkCloseDist) {
-    stroke(200, 200, 90);
-    strokeWeight(4);
+  boolean checkCloseRotation = calculateDifferenceBetweenAngles(t.rotation,screenRotation)<=5;
+  boolean checkCloseSize = abs(t.z - screenZ)<inchesToPixels(.05f);
+  if (s_sliderSelected && checkCloseSize) {
+     stroke(200, 200, 90);
+     strokeWeight(4);
+  } else if (r_sliderSelected && checkCloseRotation) {
+     stroke(200, 200, 90);
+     strokeWeight(4);
+  } else {
+    if (checkCloseDist) {
+      stroke(200, 200, 90);
+      strokeWeight(4);
+    }
   }
   fill(255, 128); //set color to semi translucent
   rect(0, 0, screenZ, screenZ);
@@ -184,6 +191,7 @@ void mouseReleased()
 
     //and move on to next trial
     trialIndex++;
+    resetSliders();
 
     screenTransX = 0;
     screenTransY = 0;
@@ -234,11 +242,6 @@ void mouseDragged() {
   } else {
     screenTransX=mouseX - mouseOffsetX;
     screenTransY=mouseY - mouseOffsetY;
-    
-    // Check if close enough
-    Target t = targets.get(trialIndex);
-    boolean checkCloseDist = dist(t.x,t.y,-screenTransX,-screenTransY)<inchesToPixels(.05f);
-    if (checkCloseDist) println("You are there");
   }
 }
 
