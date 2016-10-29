@@ -233,12 +233,12 @@ void mouseDragged() {
     float diffX = mouseX - s_sliderInitialX;
     screenZ = max(0, screenZ + inchesToPixels(.01f) * diffX);
     s_sliderInitialX = mouseX;
-    s_sliderX = mouseX;
+    s_sliderX = constrain(mouseX, 0, width);
   } else if (r_sliderSelected) {
     float diffX = mouseX - r_sliderInitialX;
     screenRotation = max(0, screenRotation + inchesToPixels(.01f) * diffX);
     r_sliderInitialX = mouseX;
-    r_sliderX = mouseX;
+    r_sliderX = constrain(mouseX, 0, width);
   } else {
     screenTransX=mouseX - mouseOffsetX;
     screenTransY=mouseY - mouseOffsetY;
@@ -258,5 +258,6 @@ void mousePressed()
   } else {
      mouseOffsetX = mouseX - screenTransX;
      mouseOffsetY = mouseY - screenTransY;   
+     print(mouseOffsetX, mouseOffsetY);
   }
 }
