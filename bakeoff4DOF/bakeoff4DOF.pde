@@ -139,7 +139,13 @@ void draw() {
   rect(0, 0, screenZ, screenZ);
  
   popMatrix();
-
+  
+  stroke(255);
+  line(0, height/2, width, height/2);
+  stroke(0);
+  line(width/2, (height/2)+10, width/2, (height/2)-10);
+  stroke(255);
+  line(s_sliderX, (height/2)+10, s_sliderX, (height/2)-10);
   scaffoldControlLogic(); //you are going to want to replace this!
 
   text("Trial " + (trialIndex+1) + " of " +trialCount, width/2, inchesToPixels(.5f));
