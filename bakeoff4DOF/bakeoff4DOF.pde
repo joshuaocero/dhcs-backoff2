@@ -37,6 +37,11 @@ boolean r_sliderSelected = false;
 float r_sliderInitialX = r_sliderX;
 float r_sliderInitialY = r_sliderY;
 
+float s_distance = 0;
+float r_distance = 0;
+float t_roation_float = 0;
+float scr_rotation_float = 0;
+
 final int screenPPI = 120; //what is the DPI of the screen you are using
 //Many phones listed here: https://en.wikipedia.org/wiki/Comparison_of_high-definition_smartphone_displays 
 
@@ -56,16 +61,34 @@ float inchesToPixels(float inch)
 }
 
 void resetSliders() {
-  s_sliderX = width / 2;
+  // OJ:
+  // This offsets the slider from the center depending on the difference between the two box.
+  // All the user has to do is slide to the center
+  Target t = targets.get(trialIndex);
+  s_distance = screenZ - t.z;
+  s_sliderX = (width / 2) - ((50f-screenZ)+inchesToPixels(.01f)) + s_distance;
   s_sliderY = height - s_sliderSize / 2;
-  r_sliderX = width / 2;
+  
+  // OJ:
+  // This is meant to do the same as above but still under testing
+  println("trolation: "+t.rotation);
+  println("screen rolation: "+screenRotation);
+  float x_tloc = t.rotation;
+  if (t.rotation>180) x_tloc = t.rotation - 180;
+  t_roation_float = (x_tloc/360f) * (width/2);
+  scr_rotation_float = (screenRotation/360f) * (width/2);
+  println("t_roation_float: "+t_roation_float);
+  println("scr_rotation_float: "+scr_rotation_float);
+  r_distance = t_roation_float - scr_rotation_float;  
+  println("r_distance: "+r_distance);
+  r_sliderX = (width / 2) - r_distance;
   r_sliderY = 0 + r_sliderSize / 2;
 }
 
 void setup() {
   //size does not let you use variables, so you have to manually compute this
   size(400, 700); //set this, based on your sceen's PPI to be a 2x3.5" area.
-  resetSliders();
+  
   rectMode(CENTER);
   textFont(createFont("Arial", inchesToPixels(.15f))); //sets the font to Arial that is .3" tall
   textAlign(CENTER);
@@ -83,8 +106,9 @@ void setup() {
     targets.add(t);
     println("created target with " + t.x + "," + t.y + "," + t.rotation + "," + t.z);
   }
-
+  
   Collections.shuffle(targets); // randomize the order of the button; don't change this.
+  resetSliders();
 }
 
 void draw() {
@@ -130,23 +154,35 @@ void draw() {
   boolean checkCloseDist = dist(t.x,t.y,-screenTransX,-screenTransY)<inchesToPixels(.05f);
   boolean checkCloseRotation = calculateDifferenceBetweenAngles(t.rotation,screenRotation)<=5;
   boolean checkCloseSize = abs(t.z - screenZ)<inchesToPixels(.05f);
-  if (s_sliderSelected && checkCloseSize) {
-     stroke(200, 200, 90);
-     strokeWeight(4);
-  } else if (r_sliderSelected && checkCloseRotation) {
-     stroke(200, 200, 90);
-     strokeWeight(4);
-  } else {
-    if (checkCloseDist) {
-      stroke(200, 200, 90);
-      strokeWeight(4);
-    }
-  }
+  
   fill(255, 128); //set color to semi translucent
   rect(0, 0, screenZ, screenZ);
  
   popMatrix();
-
+    
+  if (s_sliderSelected && checkCloseSize) {
+     stroke(193, 255, 55, 180);
+     strokeWeight(2);
+  } else if (r_sliderSelected && checkCloseRotation) {
+     stroke(88, 180, 220, 180);
+     strokeWeight(2);
+  } else if (checkCloseDist){    
+      stroke(0, 255, 0);
+      strokeWeight(2);    
+  } else {
+      stroke(255);
+  }
+  
+  // OJ:
+  // This is where the marker lines on the screen are drawn
+  line(0, height/2, width, height/2);
+  stroke(0);
+  line(width/2, (height/2)+10, width/2, (height/2)-10);
+  stroke(193, 255, 55, 180);
+  line(s_sliderX, (height/2)+10, s_sliderX, (height/2)-10);  
+  stroke(88, 180, 220, 180);
+  line(r_sliderX, (height/2)+10, r_sliderX, (height/2)-10);
+  
   scaffoldControlLogic(); //you are going to want to replace this!
 
   text("Trial " + (trialIndex+1) + " of " +trialCount, width/2, inchesToPixels(.5f));
@@ -191,7 +227,9 @@ void mouseReleased()
 
     //and move on to next trial
     trialIndex++;
-    resetSliders();
+    try { 
+      resetSliders(); 
+    } catch (Exception e) {}
 
     screenTransX = 0;
     screenTransY = 0;
@@ -231,12 +269,27 @@ double calculateDifferenceBetweenAngles(float a1, float a2)
 void mouseDragged() {
   if (s_sliderSelected) {
     float diffX = mouseX - s_sliderInitialX;
-    screenZ = max(0, screenZ + inchesToPixels(.01f) * diffX);
-    s_sliderInitialX = mouseX;
-    s_sliderX = constrain(mouseX, 0, width);
+    //screenZ = max(0, screenZ + inchesToPixels(.01f) * diffX);
+    println(width/2);
+    if (diffX > 0) {
+        screenZ++;
+        s_sliderX = constrain(mouseX, 0, width);
+        s_sliderInitialX = mouseX;
+    }
+    //if (screenZ > inchesToPixels(.1f)) {
+        if (diffX < 0) {
+            screenZ--;
+            s_sliderX = constrain(mouseX, 0, width);
+            s_sliderInitialX = mouseX;
+        }
+    //}
+    
+    
   } else if (r_sliderSelected) {
     float diffX = mouseX - r_sliderInitialX;
-    screenRotation = max(0, screenRotation + inchesToPixels(.01f) * diffX);
+    //screenRotation = max(0, screenRotation + inchesToPixels(.01f) * diffX);
+    if (diffX > 0) screenRotation++;
+    if (diffX < 0) screenRotation--;
     r_sliderInitialX = mouseX;
     r_sliderX = constrain(mouseX, 0, width);
   } else {
@@ -255,9 +308,8 @@ void mousePressed()
       r_sliderInitialX = mouseX;
       r_sliderSelected = true; 
     }
-  } else {
-     mouseOffsetX = mouseX - screenTransX;
-     mouseOffsetY = mouseY - screenTransY;   
-     print(mouseOffsetX, mouseOffsetY);
-  }
+  } 
+  
+  mouseOffsetX = mouseX - screenTransX;
+  mouseOffsetY = mouseY - screenTransY;  
 }
