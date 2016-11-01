@@ -127,10 +127,7 @@ void draw() {
   background(60); //background is dark grey
   fill(200);
   noStroke();
-
-  if (startTime == 0)
-    startTime = millis();
-
+  
   if (userDone)
   {
     text("User completed " + trialCount + " trials", width/2, inchesToPixels(.2f));
@@ -316,6 +313,11 @@ void mouseDragged() {
 
 void mousePressed()
 {
+  if (startTime == 0) //start time on the instant of the first user action    
+  {     
+    startTime = millis();      
+    println("time started!");    
+  }
   if(mouseX >= s_sliderX - s_sliderSize && mouseX < s_sliderX + s_sliderSize && mouseY >= s_sliderY - s_sliderSize) { 
     s_sliderInitialX = mouseX;
     s_sliderSelected = true; 
