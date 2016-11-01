@@ -74,14 +74,25 @@ void resetSliders() {
   println("trolation: "+t.rotation);
   println("screen rolation: "+screenRotation);
   float x_tloc = t.rotation;
-  if (t.rotation>180) x_tloc = t.rotation - 180;
+  x_tloc = t.rotation % 90;
   t_roation_float = (x_tloc/360f) * (width/2);
-  scr_rotation_float = (screenRotation/360f) * (width/2);
-  println("t_roation_float: "+t_roation_float);
+  
+  float x_scr = 0;
+  if (screenRotation <= 0) x_scr = 360 + screenRotation;
+  else x_scr = screenRotation;
+  x_scr = x_scr % 90;
+  
+  println("trolation mod: "+x_tloc);
+  println("screen rolation mod: "+x_scr);
+  
+  scr_rotation_float = (x_scr/360f) * (width/2);
+  println("t_rotation_float: "+t_roation_float);
   println("scr_rotation_float: "+scr_rotation_float);
   r_distance = t_roation_float - scr_rotation_float;  
   println("r_distance: "+r_distance);
-  r_sliderX = (width / 2) - r_distance;
+  //if (t.rotation > 180) 
+  r_sliderX = (width / 2) + r_distance; 
+  //else r_sliderX = (width / 2) - r_distance;
   r_sliderY = 0 + r_sliderSize / 2;
 }
 
@@ -178,10 +189,12 @@ void draw() {
   line(0, height/2, width, height/2);
   stroke(0);
   line(width/2, (height/2)+10, width/2, (height/2)-10);
-  stroke(193, 255, 55, 180);
-  line(s_sliderX, (height/2)+10, s_sliderX, (height/2)-10);  
-  stroke(88, 180, 220, 180);
-  line(r_sliderX, (height/2)+10, r_sliderX, (height/2)-10);
+  stroke(0);
+  fill(193, 255, 55, 180);
+  ellipse(s_sliderX, (height/2), 15, 15);  
+  stroke(0);
+  fill(88, 180, 220, 180);
+  ellipse(r_sliderX, (height/2), 15, 15);
   
   scaffoldControlLogic(); //you are going to want to replace this!
 
