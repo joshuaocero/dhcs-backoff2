@@ -188,7 +188,7 @@ void draw() {
   // This is where the marker lines on the screen are drawn
   line(0, height/2, width, height/2);
   stroke(0);
-  line(width/2, (height/2)+10, width/2, (height/2)-10);
+  //line(width/2, (height/2)+10, width/2, (height/2)-10);
   stroke(193, 255, 55, 180);
   if (checkCloseSize) fill(193, 255, 55, 180);
   ellipse(s_sliderX, (height/2), 15, 15);  
@@ -280,18 +280,21 @@ double calculateDifferenceBetweenAngles(float a1, float a2)
  }
  
 void mouseDragged() {
+  Target t = targets.get(trialIndex);
   if (s_sliderSelected) {
     float diffX = mouseX - s_sliderInitialX;
     //screenZ = max(0, screenZ + inchesToPixels(.01f) * diffX);
     println(width/2);
     if (diffX > 0) {
-        screenZ++;
+        // CHANGE RED SQUARE TO MOVE screenZ++;
+        t.z++;
         s_sliderX = constrain(mouseX, 0, width);
         s_sliderInitialX = mouseX;
     }
     //if (screenZ > inchesToPixels(.1f)) {
         if (diffX < 0) {
-            screenZ--;
+            // CHANGE RED SQUARE TO MOVE screenZ--;
+            t.z--;
             s_sliderX = constrain(mouseX, 0, width);
             s_sliderInitialX = mouseX;
         }
@@ -301,8 +304,8 @@ void mouseDragged() {
   } else if (r_sliderSelected) {
     float diffX = mouseX - r_sliderInitialX;
     //screenRotation = max(0, screenRotation + inchesToPixels(.01f) * diffX);
-    if (diffX > 0) screenRotation++;
-    if (diffX < 0) screenRotation--;
+    if (diffX > 0) t.rotation++;
+    if (diffX < 0) t.rotation--;
     r_sliderInitialX = mouseX;
     r_sliderX = constrain(mouseX, 0, width);
   } else {
