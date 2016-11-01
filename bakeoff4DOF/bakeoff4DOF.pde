@@ -189,11 +189,11 @@ void draw() {
   line(0, height/2, width, height/2);
   stroke(0);
   line(width/2, (height/2)+10, width/2, (height/2)-10);
-  stroke(0);
-  fill(193, 255, 55, 180);
+  stroke(193, 255, 55, 180);
+  if (checkCloseSize) fill(193, 255, 55, 180);
   ellipse(s_sliderX, (height/2), 15, 15);  
-  stroke(0);
-  fill(88, 180, 220, 180);
+  stroke(88, 180, 220, 180);
+  if (checkCloseRotation) fill(88, 180, 220, 180);
   ellipse(r_sliderX, (height/2), 15, 15);
   
   scaffoldControlLogic(); //you are going to want to replace this!
